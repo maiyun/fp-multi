@@ -1,0 +1,14 @@
+.git/
+node_modules/
+eslint.config.js
+.gitignore
+.npmrc
+.npmignore
+.DS_Store
+/doc/
+*.ts
+!*.d.ts
+tsconfig.json
+
+demo-config.json
+frp/

@@ -1,0 +1,24 @@
+{
+  "name": "fp-multi",
+  "version": "0.0.1",
+  "description": "Multi-user plugin for frp with per-user port limits and token/server auth.",
+  "keywords": [
+    "frp",
+    "multi",
+    "user"
+  ],
+  "main": "index.js",
+  "author": "hanguoshuai",
+  "license": "AGPL-3.0",
+  "bin": {
+    "fpmulti": "./bin/fpmulti.js"
+  },
+  "devDependencies": {
+    "@litert/eslint-plugin-rules": "^0.3.1",
+    "@types/node": "^24.1.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  }
+}

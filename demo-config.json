@@ -1,0 +1,16 @@
+{
+    "port": 7200,
+    "users": [
+        {
+            "user": "testuser",
+            "token": "D0Vuwb1z0rFz6GQaMqHuvW0SWG14YLQR",
+            "name": [],
+            "type": ["tcp"],
+            "port": ["5999-6001", "7000"]
+        }
+    ],
+    "server": {
+        "url": "",
+        "auth": ""
+    }
+}
