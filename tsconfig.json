@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "CommonJS",
+        "module": "nodenext",
         "removeComments": true,
         "preserveConstEnums": true, // 保留 const 和 enum 声明
         // "outDir": "dist/",
@@ -13,6 +13,7 @@
         "paths": {
             "~/*": ["./*"],
         },
+        "moduleResolution": "nodenext",
         "resolveJsonModule": true,
         "esModuleInterop": true
     },
