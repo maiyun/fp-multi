@@ -27,8 +27,8 @@ export async function accept(req: http.IncomingMessage, res: http.ServerResponse
         return;
     }
     /** --- req 的 post 内容 --- */
-    const _post = await tool.getPost(req);
-    if (!_post) {
+    const reqPost = await tool.getPost(req);
+    if (!reqPost) {
         tool.result(res, 400, {
             'reject': true,
             'reject_reason': 'Invalid POST data',
@@ -39,12 +39,12 @@ export async function accept(req: http.IncomingMessage, res: http.ServerResponse
     switch (op) {
         case 'Login': {
             // --- 登录 ---
-            await login(_post, res);
+            await login(reqPost, res);
             break;
         }
         case 'NewProxy': {
             // --- 新代理 ---
-            await newProxy(_post, res);
+            await newProxy(reqPost, res);
             break;
         }
     }
@@ -52,17 +52,17 @@ export async function accept(req: http.IncomingMessage, res: http.ServerResponse
 
 /**
  * --- 登录 ---
- * @param _post post 数据
+ * @param reqPost post 数据
  * @param res 响应对象
  */
-export async function login(_post: Record<string, any>, res: http.ServerResponse): Promise<void> {
+export async function login(reqPost: Record<string, any>, res: http.ServerResponse): Promise<void> {
     const config = tool.getConfig();
     if (config.users) {
         // --- 那就先判断用户 ---
-        const user = config.users.find((item: Record<string, any>) => item.user === _post.content.user);
+        const user = config.users.find((item: Record<string, any>) => item.user === reqPost.content.user);
         if (user) {
             // --- 找到用户 ---
-            if (user.token === _post.content.metas.token) {
+            if (user.token === reqPost.content.metas.token) {
                 // --- token 正确 ---
                 tool.result(res, 200, {
                     'reject': false,
@@ -84,8 +84,8 @@ export async function login(_post: Record<string, any>, res: http.ServerResponse
     const data = await tool.post(config.server.url, {
         'action': 'login',
         'auth': config.server.auth,
-        'user': _post.content.user,
-        'token': _post.content.metas.token,
+        'user': reqPost.content.user,
+        'token': reqPost.content.metas.token,
     });
     if (!data) {
         tool.result(res, 400, {
@@ -110,19 +110,18 @@ export async function login(_post: Record<string, any>, res: http.ServerResponse
 
 /**
  * --- 新建代理 ---
- * @param _post post 数据
+ * @param reqPost post 数据
  * @param res 响应对象
- * @returns 
  */
-export async function newProxy(_post: Record<string, any>, res: http.ServerResponse): Promise<void> {
+export async function newProxy(reqPost: Record<string, any>, res: http.ServerResponse): Promise<void> {
     const config = tool.getConfig();
-    const proxyName = _post.content.proxy_name.slice(_post.content.user.user.length + 1);
+    const proxyName = reqPost.content.proxy_name.slice(reqPost.content.user.user.length + 1);
     if (config.users) {
         // --- 那就先判断用户 ---
-        const user = config.users.find(item => item.user === _post.content.user.user);
+        const user = config.users.find(item => item.user === reqPost.content.user.user);
         if (user) {
             // --- 找到用户 ---
-            if (user.token === _post.content.user.metas.token) {
+            if (user.token === reqPost.content.user.metas.token) {
                 // --- token 正确，判断 name、type、port ---
                 if (user.name?.length) {
                     // --- 1. 代理名称 ---
@@ -147,9 +146,9 @@ export async function newProxy(_post: Record<string, any>, res: http.ServerRespo
                     }
                     // --- name 成功了，接着往下找 ---
                 }
-                if (user.type && user.type.length) {
+                if (user.type?.length) {
                     // --- 2. 验证代理类型 ---
-                    if (!user.type.includes(_post.content.proxy_type)) {
+                    if (!user.type.includes(reqPost.content.proxy_type)) {
                         // --- type 不匹配，结束 ---
                         tool.result(res, 400, {
                             'reject': true,
@@ -159,9 +158,9 @@ export async function newProxy(_post: Record<string, any>, res: http.ServerRespo
                     }
                     // --- type 成功了，接着往下找 ---
                 }
-                if (user.port && user.port.length) {
+                if (user.port?.length) {
                     // --- 3. 验证代理端口 ---
-                    const proxyPort = _post.content.remote_port;
+                    const proxyPort = reqPost.content.remote_port;
                     const isPortValid = user.port.some(rule => {
                         if (rule.includes('-')) {
                             // --- 端口范围 (格式: 5999-6001) ---
@@ -206,11 +205,11 @@ export async function newProxy(_post: Record<string, any>, res: http.ServerRespo
     const data = await tool.post(config.server.url, {
         'action': 'new',
         'auth': config.server.auth,
-        'user': _post.content.user.user,
-        'token': _post.content.user.metas.token,
+        'user': reqPost.content.user.user,
+        'token': reqPost.content.user.metas.token,
         'name': proxyName,
-        'type': _post.content.proxy_type,
-        'port': _post.content.remote_port,
+        'type': reqPost.content.proxy_type,
+        'port': reqPost.content.remote_port,
     });
     if (!data) {
         tool.result(res, 400, {

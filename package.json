@@ -1,7 +1,7 @@
 {
   "name": "fp-multi",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "FRP Plugin: Multi-user support with configurable name, type, and port range restrictions. Supports token and URL authentication.",
   "keywords": [
     "frp",

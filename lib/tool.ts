@@ -64,19 +64,19 @@ export const configData: {
 };
 
 /** --- 获取配置文件 --- */
-export function getConfig():{
-    "port"?: number;
-    "users"?: Array<{
-        "user": string;
-        "token": string;
-        "name"?: string[];
-        "type"?: string[];
-        "port"?: string[];
-    }>,
-    "server"?: {
-        "url": string;
-        "auth"?: string;
-    }
+export function getConfig(): {
+    'port'?: number;
+    'users'?: Array<{
+        'user': string;
+        'token': string;
+        'name'?: string[];
+        'type'?: string[];
+        'port'?: string[];
+    }>;
+    'server'?: {
+        'url': string;
+        'auth'?: string;
+    };
 } {
     const now = Date.now();
     if (now - configData.last > 5_000) {
@@ -106,9 +106,11 @@ export function getPost(req: http.IncomingMessage): Promise<Record<string, any> 
                 resolve(null);
             }
         });
-        req.on('error', () => resolve(null));
+        req.on('error', () => {
+            resolve(null);
+        });
     });
-};
+}
 
 /**
  * --- 响应 ---
