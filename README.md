@@ -31,115 +31,6 @@ In a Node.js 22+ environment, install fp-multi globally:
 $ npm i fp-multi -g
 ```
 
-### Configure frps
-
-```toml
-[[httpPlugins]]
-addr = "127.0.0.1:7200"
-path = "/handler"
-ops = ["Login", "NewProxy"]
-```
-
-Port 7200 can be customized, see [Configuration File](#configuration-file).
-
-### Configure frpc
-
-It's recommended to set `loginFailExit` to `false` so that `frpc` won't exit when login fails or network connection is lost, but will continue trying to login.
-
-#### user1
-
-```toml
-serverAddr = "127.0.0.1"
-loginFailExit = false
-user = "user1"
-metadatas.token = "token1"
-
-[[proxies]]
-name = "user1-6000"
-type = "tcp"
-localIP = "127.0.0.1"
-localPort = 22
-remotePort = 6000
-```
-
-#### user2
-
-```toml
-serverAddr = "127.0.0.1"
-loginFailExit = false
-user = "user2"
-metadatas.token = "token2"
-
-[[proxies]]
-name = "user2"
-type = "tcp"
-localPort = 22
-remotePort = 6001
-```
-
-### Direct Startup
-
-```sh
-$ fpmulti -c /etc/fp-multi/config.json
-```
-
-After starting, launch `frps` to begin normal usage.
-
-### systemd Startup
-
-1. Create a service file
-
-```sh
-$ sudo nano /etc/systemd/system/fpmulti.service
-```
-
-2. Write the file content
-
-```sh
-[Unit]
-Description = fp multi
-After = network.target syslog.target
-Wants = network.target
-
-[Service]
-Type = simple
-ExecStart = fpmulti -c /etc/fp-multi/config.json
-
-[Install]
-WantedBy = multi-user.target
-```
-
-3. It's recommended to coordinate with frps service so that when frps service starts automatically, it also forces `fpmulti.service` to start. Create `frps.service` file:
-
-```sh
-$ sudo nano /etc/systemd/system/frps.service
-```
-
-4. Write the file content
-
-```
-[Unit]
-Description = frp server
-After = fpmulti.service
-Requires = fpmulti.service
-
-[Service]
-Type = simple
-# Command to start frps, modify to actual frps path
-ExecStart = /path/to/frps -c /path/to/frps.toml
-
-[Install]
-WantedBy = multi-user.target
-```
-
-5. Set `frps.service` to start on boot
-
-```sh
-$ sudo systemctl enable frps
-```
-
-## Configuration File
-
 ### Configuration File Example
 
 ```json
@@ -253,6 +144,113 @@ A `result` greater than 0 indicates permission, while less than or equal to 0 in
 #### auth
 
 The `server.auth` value from fp-multi will be sent as-is to prevent third parties from making unauthorized requests to your authentication interface.
+
+### Configure frps
+
+```toml
+[[httpPlugins]]
+addr = "127.0.0.1:7200"
+path = "/handler"
+ops = ["Login", "NewProxy"]
+```
+
+Port 7200 can be customized, see [Configuration File](#configuration-file).
+
+### Configure frpc
+
+It's recommended to set `loginFailExit` to `false` so that `frpc` won't exit when login fails or network connection is lost, but will continue trying to login.
+
+#### user1
+
+```toml
+serverAddr = "127.0.0.1"
+loginFailExit = false
+user = "user1"
+metadatas.token = "token1"
+
+[[proxies]]
+name = "user1-6000"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 22
+remotePort = 6000
+```
+
+#### user2
+
+```toml
+serverAddr = "127.0.0.1"
+loginFailExit = false
+user = "user2"
+metadatas.token = "token2"
+
+[[proxies]]
+name = "user2"
+type = "tcp"
+localPort = 22
+remotePort = 6001
+```
+
+### Direct Startup
+
+```sh
+$ fpmulti -c /etc/fp-multi/config.json
+```
+
+After starting, launch `frps` to begin normal usage.
+
+### systemd Startup
+
+1. Create a service file
+
+```sh
+$ sudo nano /etc/systemd/system/fpmulti.service
+```
+
+2. Write the file content
+
+```sh
+[Unit]
+Description = fp multi
+After = network.target syslog.target
+Wants = network.target
+
+[Service]
+Type = simple
+ExecStart = fpmulti -c /etc/fp-multi/config.json
+
+[Install]
+WantedBy = multi-user.target
+```
+
+3. It's recommended to coordinate with frps service so that when frps service starts automatically, it also forces `fpmulti.service` to start. Create `frps.service` file:
+
+```sh
+$ sudo nano /etc/systemd/system/frps.service
+```
+
+4. Write the file content
+
+```
+[Unit]
+Description = frp server
+After = fpmulti.service
+Requires = fpmulti.service
+
+[Service]
+Type = simple
+# Command to start frps, modify to actual frps path
+ExecStart = /path/to/frps -c /path/to/frps.toml
+
+[Install]
+WantedBy = multi-user.target
+```
+
+5. Set `frps.service` to start on boot
+
+```sh
+$ sudo systemctl enable frps
+```
 
 ## License
 

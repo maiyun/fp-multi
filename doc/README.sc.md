@@ -29,115 +29,6 @@
 $ npm i fp-multi -g
 ```
 
-### 配置 frps
-
-```toml
-[[httpPlugins]]
-addr = "127.0.0.1:7200"
-path = "/handler"
-ops = ["Login", "NewProxy"]
-```
-
-端口 7200 可自定义，参见 [配置文件](#配置文件)。
-
-### 配置 frpc
-
-建议将 `loginFailExit` 设置为 `false`，这样当用户登录失败或网络连接失败时，`frpc` 不会退出，而是继续尝试登录。
-
-#### user1
-
-```toml
-serverAddr = "127.0.0.1"
-loginFailExit = false
-user = "user1"
-metadatas.token = "token1"
-
-[[proxies]]
-name = "user1-6000"
-type = "tcp"
-localIP = "127.0.0.1"
-localPort = 22
-remotePort = 6000
-```
-
-#### user2
-
-```toml
-serverAddr = "127.0.0.1"
-loginFailExit = false
-user = "user2"
-metadatas.token = "token2"
-
-[[proxies]]
-name = "user2"
-type = "tcp"
-localPort = 22
-remotePort = 6001
-```
-
-### 直接启动
-
-```sh
-$ fpmulti -c /etc/fp-multi/config.json
-```
-
-启动后再启动 `frps` 即可正常使用。
-
-### systemd 启动
-
-1. 创建 service 文件
-
-```sh
-$ sudo nano /etc/systemd/system/fpmulti.service
-```
-
-2. 写入文件内容
-
-```sh
-[Unit]
-Description = fp multi
-After = network.target syslog.target
-Wants = network.target
-
-[Service]
-Type = simple
-ExecStart = fpmulti -c /etc/fp-multi/config.json
-
-[Install]
-WantedBy = multi-user.target
-```
-
-3. 建议和 frps 的 service 配合，这样让 frps 的 service 自动启动时也强制启动 `fpmulti.service`，创建 `frps.service` 文件
-
-```sh
-$ sudo nano /etc/systemd/system/frps.service
-```
-
-4. 写入文件内容
-
-```
-[Unit]
-Description = frp server
-After = fpmulti.service
-Requires = fpmulti.service
-
-[Service]
-Type = simple
-# 启动 frps 的命令，需修改为实际的 frps 的路径
-ExecStart = /path/to/frps -c /path/to/frps.toml
-
-[Install]
-WantedBy = multi-user.target
-```
-
-5. 设置 `frps.service` 开机自启
-
-```sh
-$ sudo systemctl enable frps
-```
-
-## 配置文件
-
 ### 配置文件示例
 
 ```json
@@ -251,6 +142,111 @@ frpc 成功连接 frps 后，将根据 [[proxies]] 配置依次创建代理，�
 #### auth
 
 fp-multi 端会将 `server.auth` 的值透穿发送，以防止第三方非法请求你的鉴权接口。
+
+### 配置 frps
+
+```toml
+[[httpPlugins]]
+addr = "127.0.0.1:7200"
+path = "/handler"
+ops = ["Login", "NewProxy"]
+```
+
+### 配置 frpc
+
+建议将 `loginFailExit` 设置为 `false`，这样当用户登录失败或网络连接失败时，`frpc` 不会退出，而是继续尝试登录。
+
+#### user1
+
+```toml
+serverAddr = "127.0.0.1"
+loginFailExit = false
+user = "user1"
+metadatas.token = "token1"
+
+[[proxies]]
+name = "user1-6000"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 22
+remotePort = 6000
+```
+
+#### user2
+
+```toml
+serverAddr = "127.0.0.1"
+loginFailExit = false
+user = "user2"
+metadatas.token = "token2"
+
+[[proxies]]
+name = "user2"
+type = "tcp"
+localPort = 22
+remotePort = 6001
+```
+
+### 直接启动
+
+```sh
+$ fpmulti -c /etc/fp-multi/config.json
+```
+
+启动后再启动 `frps` 即可正常使用。
+
+### systemd 启动
+
+1. 创建 service 文件
+
+```sh
+$ sudo nano /etc/systemd/system/fpmulti.service
+```
+
+2. 写入文件内容
+
+```sh
+[Unit]
+Description = fp multi
+After = network.target syslog.target
+Wants = network.target
+
+[Service]
+Type = simple
+ExecStart = fpmulti -c /etc/fp-multi/config.json
+
+[Install]
+WantedBy = multi-user.target
+```
+
+3. 建议和 frps 的 service 配合，这样让 frps 的 service 自动启动时也强制启动 `fpmulti.service`，创建 `frps.service` 文件
+
+```sh
+$ sudo nano /etc/systemd/system/frps.service
+```
+
+4. 写入文件内容
+
+```
+[Unit]
+Description = frp server
+After = fpmulti.service
+Requires = fpmulti.service
+
+[Service]
+Type = simple
+# 启动 frps 的命令，需修改为实际的 frps 的路径
+ExecStart = /path/to/frps -c /path/to/frps.toml
+
+[Install]
+WantedBy = multi-user.target
+```
+
+5. 设置 `frps.service` 开机自启
+
+```sh
+$ sudo systemctl enable frps
+```
 
 ## 许可
 
